@@ -62,6 +62,8 @@
 
 
     <!-- THESE ALWAYS GOES LAST -->
+    <script src="js/Fader.js"></script>
+
     <script src="js/Global.js"></script>
     <script src="js/Link.js"></script>
     <script src="js/PhysicsText.js"></script>
@@ -193,6 +195,9 @@
 
       G.hoverOver = function( id ){
 
+        this.hoverTimer = 0;
+        this.hoverTimerStarted = true;
+        
         for( var i = 0; i < this.links.length; i++ ){
 
 
@@ -213,6 +218,8 @@
       
       G.hoverOut = function( id ){
 
+        this.hoverTimerStarted = false;
+        this.hoverTimer = 0;
        
       }
 

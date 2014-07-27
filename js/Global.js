@@ -147,20 +147,19 @@ G.init = function(){
 
 
   var rHandMesh = new THREE.Mesh( 
-    new THREE.BoxGeometry( 10 , 10, 100 ),
+    new THREE.BoxGeometry( 1 , 1, 100 ),
     new THREE.MeshBasicMaterial( 0xff0000 )
   );
  
   this.rHand = new RiggedSkeleton( this.leap , this.camera , {
   
-    movementSize: 1000,
+    movementSize: 1,
     handSize:     100,
 
   });
   
   this.rHand.addScaledMeshToAll( rHandMesh );
 
-  this.rHand.addToScene( this.scene );
 
   this.rHand.relative = new THREE.Vector3();
 
@@ -179,7 +178,7 @@ G.init = function(){
   
   this.lHand.addScaledMeshToAll( rHandMesh );
 
-  this.lHand.addToScene( this.scene );
+  //this.lHand.addToScene( this.scene );
 
   this.lHand.relative = new THREE.Vector3();
 
@@ -207,15 +206,46 @@ G.init = function(){
 
   */
 
-    
+  this.objControls = new THREE.Object3D();
+
+  var m = new THREE.Mesh( 
+    new THREE.IcosahedronGeometry( 1 , 3 ),
+    new THREE.MeshBasicMaterial( 0xffffff )
+  );
+  
+  this.objControls.add( m ); 
+
+
+ 
+  this.objControls.faders = [];
+
+  for( var i = 0; i < 7; i++ ){
+
+    var f = new Fader( 1 , 2, 10 );
+
+
+    f.mesh.position.x =  3 + i * 3;
+    f.mesh.position.y = -5;
+    this.objControls.faders.push( f );
+
+    this.objControls.add( f.mesh );
+  
+
+  }
+
+ 
+  this.scene.add( this.objControls );
+   
+
   this.objectControls = new ObjectControls( 
     this.camera , 
-    this.rHand.hand , 
+    this.objControls , 
     this.leap  
   );
 
   this.mouse = this.objectControls.unprojectedMouse;
   this.raycaster = this.objectControls.raycaster;
+
 
 }
 
@@ -282,13 +312,19 @@ G.animate = function(){
   if( !this.paused ){
 
 
+    if( this.hoverTimerStarted ){
+
+      this.hoverTimer ++;
+
+    }
     /*this.dT.value = this.clock.getDelta();
     this.timer.value += G.dT.value;*/
 
     this.tween.update();
 
    // if( this.objectControls.mouseMoved === true ){
-      this.objectControls.update();
+     
+    this.objectControls.update();
    // }
     this.updateIntersection();
 
@@ -297,6 +333,45 @@ G.animate = function(){
     this.rHand.update( 0 );
     this.lHand.update( 1 );
 
+    this.frame = this.leap.frame();
+    if( this.frame.hands[0] ){
+
+      this.rHand.leapToCamera( this.objControls.position , this.camera , this.frame.hands[0].palmPosition , 500 );
+
+      for( var i = 0; i < this.objControls.faders.length; i++ ){
+
+        var f = this.objControls.faders[i];
+
+        var a = 0;
+
+        if( i == 0 ){
+
+          var ps = this.frame.hands[0].pinchStrength;
+          var ss = this.objectControls.selectionStrength;
+          a = ps / ss;
+
+        }else if( i == 1 ){
+
+          a = this.hoverTimer/100;
+
+        }else if( i == 2 ){
+
+          a = Math.abs( this.frame.hands[0].palmNormal[0]*2 );
+
+        }
+
+
+
+        f.setAmount( a );
+
+
+      }
+
+
+
+
+
+    }
 
     this.rHand.relative.copy( this.rHand.hand.position );
     this.rHand.relative.sub( this.position );
