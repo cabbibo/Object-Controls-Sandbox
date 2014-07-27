@@ -1,0 +1,232 @@
+<html>
+
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link href="/favicon.ico" rel="icon" type="image/x-icon" >
+    
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    
+    <meta name="twitter:card" content="photo">
+    <meta name="twitter:site" content="@cabbibo">
+    <meta name="twitter:creator" content="@cabbibo">
+    <meta name="twitter:url" content="http://cabbi.bo">
+    <meta name="twitter:title" content="Long Live Synesthesia">
+    <meta name="twitter:description" content="Long Live Synesthesia">
+    <meta name="twitter:creator" content="@cabbibo">
+    <meta name="twitter:image" content="http://cabbi.bo/image.png">
+    <meta name="twitter:image:width" content="1440">
+    <meta name="twitter:image:height" content="900">
+    <meta name="twitter:domain" content="cabbi.bo">
+    <meta itemprop="name" content="Cabbi.bo">
+    <meta itemprop="description" content="Long Live Synesthesia">
+    <meta itemprop="image" src="http://cabbi.bo/image.png">
+    <meta property="og:title" content="Cabbi.bo">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="http://cabbi.bo/image.png"/>
+    <meta property="og:site_name" content="Cabbi.bo">
+    <meta property="og:description" content="Long Live Synesthesia">
+    
+    <style>
+ #container{ position:absolute; left:0px; top:0px; z-index:0; width:100%; height:100%; display:block; overflow:hidden}
+    </style>
+  </head>
+
+  <body>
+    <div id="container"></div>
+
+    <script src="lib/leap.js"></script>
+    <script src="lib/three.js"></script>
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/stats.min.js"></script>
+    <script src="lib/dat.gui.min.js"></script>
+    <script src="lib/underscore.js"></script>
+    <script src="lib/Tween.js"></script>
+    
+    <script src="lib/ShaderLoader.js"></script>
+
+    <script src="lib/AudioController.js"></script>
+    <script src="lib/AudioTexture.js"></script>
+    <script src="lib/LoadedAudio.js"></script>
+
+    <script src="lib/TextCreator.js"></script>
+    <script src="lib/TextParticles.js"></script>
+
+    <script src="lib/ObjectControls.js"></script>
+    <script src="lib/RiggedSkeleton.js"></script>
+
+    <script src="lib/ParticleUtils.js"></script>
+    <script src="lib/PhysicsRenderer.js"></script>
+    
+    <script src="lib/Loader.js"></script>
+    
+
+
+    <!-- THESE ALWAYS GOES LAST -->
+    <script src="js/Global.js"></script>
+    <script src="js/Link.js"></script>
+    <script src="js/PhysicsText.js"></script>
+    <script src="js/links.js"></script>
+
+    <script>
+
+
+      // TODO: 
+      // Write shaders for hands
+
+//      G.audio.mute.gain.value = .05;
+
+      G.camera.position.z = 1000;
+
+      G.loader.addLoad();
+
+   
+      // For text
+      G.shaders.load( 'vs-text' , 'text' , 'vertex'    );
+      G.shaders.load( 'fs-text' , 'text' , 'fragment'  );
+      G.shaders.load( 'ss-text' , 'text' , 'simulation'  );
+
+      G.shaders.shaderSetLoaded = function(){
+        G.loader.onLoad();
+      }
+
+
+      for( var i = 0; i < links.length; i++ ){
+
+        var name = links[i].note;
+        var file = "audio/"+name+".mp3"
+
+        if( !G.AUDIO[ name ] ){
+
+          G.loader.addLoad();
+
+          var file = "audio/"+name+".mp3"
+
+          G.AUDIO[ name ]= new LoadedAudio( G.audio , file );
+
+          G.AUDIO[ name ].onLoad = function(){
+             
+            G.loader.onLoad();
+
+          }.bind( this );
+
+        }
+        
+      }
+
+      G.loadTextures();
+
+      
+      G.addToStartArray( function(){
+
+      G.audio.mute.gain.value = .05;
+        
+        var totalX = -435;
+        for( var i = 0; i < links.length; i++ ){
+
+          var p = (i+.5) / links.length// (i+.5) / links.length;
+          var link = new Link( i , links[i] );
+
+          G.links.push( link );
+
+          G.scene.add( link.mesh );
+
+          link.deactivate();
+
+
+
+          if( i > 3 ){
+
+            link.mesh.position.y = 200;
+            link.mesh.position.x = totalX + link.mesh.totalWidth/2;
+            totalX += link.mesh.totalWidth + 35;
+
+            var mesh = new THREE.Mesh( new THREE.IcosahedronGeometry( 100 , 4 ) );
+
+            var s = link.text.size;
+            var pTexture = ParticleUtils.createPositionsTexture( s , mesh );
+            link.text.physics.reset( pTexture );
+
+          }else{
+
+          if( i == 0 ){
+            link.mesh.position.y = -200;
+            link.mesh.position.x = 400;
+
+            link.text.instant();
+           /* var t = link.text.particles.material.uniforms.t_lookup.value;
+            link.text.physics.reset( t );*/
+
+          }
+
+          if( i == 0 ){
+            link.mesh.position.y = 280;
+            link.mesh.position.x = 0;
+          }
+          if( i == 1 ){
+
+            link.mesh.position.y = -225;
+            link.mesh.position.x = 370;
+
+          }
+          if( i == 2 ){
+
+            link.mesh.position.y = -225;
+            link.mesh.position.x = 410;
+
+          }
+          if( i == 3 ){
+
+            link.mesh.position.y = -225;
+            link.mesh.position.x = 450;
+
+          }
+
+
+
+
+          }
+
+        }
+
+      
+      }.bind( G ) );
+
+      G.hoverOver = function( id ){
+
+        for( var i = 0; i < this.links.length; i++ ){
+
+
+          if( this.links[i].id === id ){
+
+            this.links[i].activate();
+
+          }else{
+
+            this.links[i].deactivate();
+
+          }
+
+        }
+
+      }
+
+      
+      G.hoverOut = function( id ){
+
+       
+      }
+
+      G.select = function( id ){
+
+       
+      }
+
+      G.deselect = function( id ){
+
+       
+      }
+
+    </script>
+
+  </body>
+</html>
