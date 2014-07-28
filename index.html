@@ -135,58 +135,18 @@
           link.deactivate();
 
 
+          link.mesh.position.y = 200;
+          link.mesh.position.x = totalX + link.mesh.totalWidth/2;
+          totalX += link.mesh.totalWidth + 15;
 
-          if( i > 3 ){
+          var mesh = new THREE.Mesh( new THREE.IcosahedronGeometry( 100 , 4 ) );
 
-            link.mesh.position.y = 200;
-            link.mesh.position.x = totalX + link.mesh.totalWidth/2;
-            totalX += link.mesh.totalWidth + 35;
+          var s = link.text.size;
+          var pTexture = ParticleUtils.createPositionsTexture( s , mesh );
+          link.text.physics.reset( pTexture );
 
-            var mesh = new THREE.Mesh( new THREE.IcosahedronGeometry( 100 , 4 ) );
+        
 
-            var s = link.text.size;
-            var pTexture = ParticleUtils.createPositionsTexture( s , mesh );
-            link.text.physics.reset( pTexture );
-
-          }else{
-
-          if( i == 0 ){
-            link.mesh.position.y = -200;
-            link.mesh.position.x = 400;
-
-            link.text.instant();
-           /* var t = link.text.particles.material.uniforms.t_lookup.value;
-            link.text.physics.reset( t );*/
-
-          }
-
-          if( i == 0 ){
-            link.mesh.position.y = 280;
-            link.mesh.position.x = 0;
-          }
-          if( i == 1 ){
-
-            link.mesh.position.y = -225;
-            link.mesh.position.x = 370;
-
-          }
-          if( i == 2 ){
-
-            link.mesh.position.y = -225;
-            link.mesh.position.x = 410;
-
-          }
-          if( i == 3 ){
-
-            link.mesh.position.y = -225;
-            link.mesh.position.x = 450;
-
-          }
-
-
-
-
-          }
 
         }
 

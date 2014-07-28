@@ -101,7 +101,7 @@ G.init = function(){
 
   */
 
-  this.textCreator = new TextCreator( 30 );
+  this.textCreator = new TextCreator( 40 );
   
   this.iPlane = new THREE.Mesh(
     new THREE.PlaneGeometry( 100000 , 100000 )
@@ -383,7 +383,7 @@ G.animate = function(){
           var hand = this.frame.hands[0];
           var d1 = hand.indexFinger.proximal.direction(),
           d2 = hand.indexFinger.medial.direction();
-          var a= 2*Math.acos(Leap.vec3.dot(d1, d2));
+          var a= Math.acos(Leap.vec3.dot(d1, d2));
 
         }else if( i == 6 ){
 
@@ -392,7 +392,7 @@ G.animate = function(){
           var d1 = hand.indexFinger.tipPosition;
           var d2 = hand.thumb.tipPosition;
 
-          a = (100 - (d1[0] - 30 - d2[0]))/100;
+          a = (100 - (d1[0] +30 - d2[0]))/100;
           
 
 
