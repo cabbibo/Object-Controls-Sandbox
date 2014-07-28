@@ -121,7 +121,20 @@
       G.addToStartArray( function(){
 
       G.audio.mute.gain.value = .05;
-        
+
+
+      G.fader = new Fader( 1 , 50 , 500 );
+
+      G.fader.mesh.rotation.z = - Math.PI / 2
+      G.fader.mesh.position.x = -250;
+      G.fader.mesh.position.y = -200;
+
+
+      G.scene.add( G.fader.mesh );
+
+      G.fader.type = 'pinch';
+
+
         var totalX = -435;
         for( var i = 0; i < links.length; i++ ){
 
@@ -144,9 +157,6 @@
           var s = link.text.size;
           var pTexture = ParticleUtils.createPositionsTexture( s , mesh );
           link.text.physics.reset( pTexture );
-
-        
-
 
         }
 

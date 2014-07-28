@@ -11,47 +11,8 @@ function Link( id , params ){
   this.active = false;
   this.dead   = true;
 
-  if( this.params.name === 'TITLE' ){
+  this.mesh = G.textCreator.createMesh( this.params.name );
 
-    this.mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry( 40 , 40 ),
-      new THREE.MeshBasicMaterial({
-        map: G.TEXTURES['cabbibo']
-      })
-    );
-
-  }else if( this.params.name === 'FACEBOOK' ){
-
-    this.mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry( 30 , 30 ),
-      new THREE.MeshBasicMaterial({
-        map: G.TEXTURES['facebook']
-      })
-    );
-
-  }else if( this.params.name === 'TWITTER' ){
-
-    this.mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry( 30 , 30 ),
-      new THREE.MeshBasicMaterial({
-        map: G.TEXTURES['twitter']
-      })
-    );
-
-  }else if( this.params.name === 'SOUNDCLOUD' ){
-
-    this.mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry( 30 , 30 ),
-      new THREE.MeshBasicMaterial({
-        map: G.TEXTURES['soundcloud']
-      })
-    );
-
-  }else{
-  
-    this.mesh = G.textCreator.createMesh( this.params.name );
-
-  }
 
   this.mesh.hoverOver = this.hoverOver.bind( this );
   this.mesh.hoverOut  = this.hoverOut.bind( this );
@@ -77,6 +38,8 @@ Link.prototype.unFocus = function(){}
 
 Link.prototype.activate = function(){
 
+  console.log( this.params.fader );
+  G.fader.type = this.params.fader;
   if( this.started === false ){
 
     this.text.activate();

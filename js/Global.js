@@ -153,13 +153,14 @@ G.init = function(){
  
   this.rHand = new RiggedSkeleton( this.leap , this.camera , {
   
-    movementSize: 1,
+    movementSize: 500,
     handSize:     100,
 
   });
   
   this.rHand.addScaledMeshToAll( rHandMesh );
 
+  this.rHand.addToScene( this.scene );
 
   this.rHand.relative = new THREE.Vector3();
 
@@ -171,14 +172,14 @@ G.init = function(){
  
   this.lHand = new RiggedSkeleton( this.leap , this.camera ,  {
   
-    movementSize: 1000,
-    handSize:     100,
+    movementSize: 500,
+    handSize:     10,
 
   });
   
   this.lHand.addScaledMeshToAll( rHandMesh );
 
-  //this.lHand.addToScene( this.scene );
+  this.lHand.addToScene( this.scene );
 
   this.lHand.relative = new THREE.Vector3();
 
@@ -206,40 +207,10 @@ G.init = function(){
 
   */
 
-  this.objControls = new THREE.Object3D();
-
-  var m = new THREE.Mesh( 
-    new THREE.IcosahedronGeometry( 1 , 3 ),
-    new THREE.MeshBasicMaterial( 0xffffff )
-  );
-  
-  this.objControls.add( m ); 
-
-
- 
-  this.objControls.faders = [];
-
-  for( var i = 0; i < 7; i++ ){
-
-    var f = new Fader( 1 , 2, 10 );
-
-
-    f.mesh.position.x =  3 + i * 3;
-    f.mesh.position.y = -5;
-    this.objControls.faders.push( f );
-
-    this.objControls.add( f.mesh );
-  
-
-  }
-
- 
-  this.scene.add( this.objControls );
-   
 
   this.objectControls = new ObjectControls( 
     this.camera , 
-    this.objControls , 
+    this.rHand.hand, 
     this.leap  
   );
 
@@ -334,80 +305,67 @@ G.animate = function(){
     this.lHand.update( 1 );
 
     this.frame = this.leap.frame();
+
     if( this.frame.hands[0] ){
 
-      this.rHand.frame = this.frame;
-      this.rHand.leapToCamera( this.objControls.position , this.camera , this.frame.hands[0].palmPosition , 500 );
+      var t = G.fader.type;
+      if( t == 'pinch' ){
 
-      for( var i = 0; i < this.objControls.faders.length; i++ ){
+        var ps = this.frame.hands[0].pinchStrength;
+        var ss = this.objectControls.selectionStrength;
+        a = ps / ss;
 
-        var f = this.objControls.faders[i];
+      }else if( t == 'hover' ){
 
-        var a = 0;
+        a = this.hoverTimer/50;
 
-        if( i == 0 ){
+      }else if( t == 'normalX'){
 
-          var ps = this.frame.hands[0].pinchStrength;
-          var ss = this.objectControls.selectionStrength;
-          a = ps / ss;
+        a = Math.abs( this.frame.hands[0].palmNormal[0]*2 );
 
-        }else if( i == 1 ){
+      }else if(t == 'grab' ){
 
-          a = this.hoverTimer/50;
-
-        }else if( i == 2 ){
-
-          a = Math.abs( this.frame.hands[0].palmNormal[0]*2 );
-
-        }else if( i == 3 ){
-
-          var ps = this.frame.hands[0].grabStrength;
-          var ss = this.objectControls.selectionStrength;
-          a = ps / ss;
+        var ps = this.frame.hands[0].grabStrength;
+        var ss = this.objectControls.selectionStrength;
+        a = ps / ss;
 
 
 
-        }else if( i == 4 ){
+      }else if( t == 'scissors' ){
 
 
-          var hand = this.frame.hands[0];
+        var hand = this.frame.hands[0];
 
-          var d1 = hand.indexFinger.proximal.direction(),
-          d2 = hand.middleFinger.proximal.direction();
-
-
-          var a= 3 - 10 * Math.acos(Leap.vec3.dot(d1, d2));
-
-        }else if( i == 5 ){
-
-          var hand = this.frame.hands[0];
-          var d1 = hand.indexFinger.proximal.direction(),
-          d2 = hand.indexFinger.medial.direction();
-          var a= 2*Math.acos(Leap.vec3.dot(d1, d2));
-
-        }else if( i == 6 ){
+        var d1 = hand.indexFinger.proximal.direction(),
+        d2 = hand.middleFinger.proximal.direction();
 
 
-          var hand = this.frame.hands[0];
-          var d1 = hand.indexFinger.tipPosition;
-          var d2 = hand.thumb.tipPosition;
+        var a= 3 - 10 * Math.acos(Leap.vec3.dot(d1, d2));
 
-          a = (100 - (d1[0] - 30 - d2[0]))/100;
-          
+      }else if( t == 'curl' ){
+
+        var hand = this.frame.hands[0];
+        var d1 = hand.indexFinger.proximal.direction(),
+        d2 = hand.indexFinger.medial.direction();
+        var a= 2*Math.acos(Leap.vec3.dot(d1, d2));
+
+      }else if( t == 'thumb' ){
 
 
-        }
+        var hand = this.frame.hands[0];
+        var d1 = hand.indexFinger.tipPosition;
+        var d2 = hand.thumb.tipPosition;
 
-
-
-
-        f.setAmount( a );
+        a = (100 - (d1[0] - 30 - d2[0]))/100;
+        
 
 
       }
 
 
 
+
+      G.fader.setAmount( a );
 
 
     }
