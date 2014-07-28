@@ -85,7 +85,6 @@ Link.prototype.activate = function(){
 
 Link.prototype.deactivate = function(){
 
-
   this.mesh.material.color = this.neutralColor
 
   if( this.lifeTweening ){
@@ -219,6 +218,8 @@ Link.prototype.update = function(){
 
 Link.prototype.hoverOver = function(){
 
+  G.scene.add( G.fader.mesh );
+  
 
   console.log( this.params.name );
   G.AUDIO[ this.params.note ].play();
@@ -230,6 +231,8 @@ Link.prototype.hoverOver = function(){
 
 Link.prototype.hoverOut = function(){
 
+  G.scene.remove( G.fader.mesh );
+  
   if( !this.dead ){
 
     this.mesh.material.color = this.focusColor;
